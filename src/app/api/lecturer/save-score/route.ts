@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createNotification } from "@/lib/notifications";
+import { createAuditLog } from "@/lib/audit";
 import { Score } from "@/types/db";
 
 export async function POST(req: Request) {
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
 
     const total = ca + exam;
 
-    // Check if score record already exists
+    // Check existing registration
     const { data: existingReg } = await supabaseAdmin
       .from("course_registrations")
       .select("id, course_id, session, score:scores(*)")
@@ -49,7 +51,6 @@ export async function POST(req: Request) {
     let scoreId = existingScoreObj?.id;
 
     if (scoreId) {
-      // Update score
       const { error: updateErr } = await supabaseAdmin
         .from("scores")
         .update({
@@ -63,7 +64,6 @@ export async function POST(req: Request) {
 
       if (updateErr) throw updateErr;
     } else {
-      // Insert score
       const { data: newScore, error: insertErr } = await supabaseAdmin
         .from("scores")
         .insert({
@@ -80,15 +80,22 @@ export async function POST(req: Request) {
       scoreId = newScore.id;
     }
 
-    // Update course_registrations status to 'scored'
-    const { error: regErr } = await supabaseAdmin
+    // Update registration status
+    await supabaseAdmin
       .from("course_registrations")
       .update({ status: "scored" })
       .eq("id", registration_id);
 
-    if (regErr) throw regErr;
+    // Write audit log
+    await createAuditLog(
+      session.userId,
+      session.email || "Lecturer",
+      "lecturer",
+      "score_entered",
+      `Entered CA (${ca}) & Exam (${exam}) for course registration ${registration_id}`
+    );
 
-    // Check if all students registered for this course & session are scored
+    // Check if all students are scored
     const { data: allRegs } = await supabaseAdmin
       .from("course_registrations")
       .select("id, status")
@@ -96,6 +103,15 @@ export async function POST(req: Request) {
       .eq("session", existingReg.session);
 
     const allScored = (allRegs || []).every((r) => r.status === "scored" || r.status === "approved");
+
+    if (allScored) {
+      await createNotification(
+        session.userId,
+        "lecturer",
+        `All student scores for course ${existingReg.course_id} (${existingReg.session}) have been entered. Ready for management approval.`,
+        "scores_submitted"
+      );
+    }
 
     return NextResponse.json({
       success: true,

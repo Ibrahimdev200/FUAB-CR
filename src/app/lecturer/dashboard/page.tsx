@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Course, LecturerCourseAssignment, Score, Student } from "@/types/db";
+import NotificationBell from "@/components/NotificationBell";
 
 interface CourseStudentRow {
   registrationId: string;
@@ -192,6 +193,7 @@ export default function LecturerDashboardPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <NotificationBell role="lecturer" />
           <span style={{ fontSize: "0.875rem", color: "#cbd5e1" }}>{lecturer?.fullName || lecturer?.email}</span>
           <button
             onClick={handleLogout}

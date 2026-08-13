@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Faculty, Department, Course, Student, Lecturer, AcademicSettings, GradingPolicy, GradeBoundary } from "@/types/db";
+import {
+  AcademicSettings,
+  Course,
+  Department,
+  Faculty,
+  GradingPolicy,
+  GradeBoundary,
+  Lecturer,
+  Student,
+  AuditLog,
+} from "@/types/db";
+import NotificationBell from "@/components/NotificationBell";
 
 type TabType =
   | "upload"
@@ -12,7 +23,8 @@ type TabType =
   | "approvals"
   | "access"
   | "registrations"
-  | "academic";
+  | "academic"
+  | "audit_logs";
 
 export default function ManagementDashboardPage() {
   const router = useRouter();
@@ -92,6 +104,7 @@ export default function ManagementDashboardPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <NotificationBell role="management" />
           <span style={{ fontSize: "0.875rem", color: "#cbd5e1" }}>{adminUser?.email}</span>
           <button
             onClick={handleLogout}
@@ -130,8 +143,9 @@ export default function ManagementDashboardPage() {
             { id: "grading", label: "⚖️ Grading Policy" },
             { id: "approvals", label: "✅ Approvals & Rejections" },
             { id: "access", label: "🔒 Student Access Control" },
-            { id: "registrations", label: "📊 View Registrations" },
+            { id: "registrations", label: "📋 Registrations Report" },
             { id: "academic", label: "⚙️ Academic Settings" },
+            { id: "audit_logs", label: "📜 Audit Logs" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -165,6 +179,7 @@ export default function ManagementDashboardPage() {
         {activeTab === "academic" && (
           <AcademicSettingsTab settings={academicSettings} onUpdated={setAcademicSettings} />
         )}
+        {activeTab === "audit_logs" && <AuditLogsTab />}
       </div>
     </div>
   );
@@ -1379,6 +1394,118 @@ function AcademicSettingsTab({
           {saving ? "Saving..." : "Save Active Session & Semester"}
         </button>
       </form>
+    </div>
+  );
+}
+
+/* ====================================================================
+   SECTION 9: Audit Logs Tab
+==================================================================== */
+function AuditLogsTab() {
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    fetch("/api/mgmt/audit-logs")
+      .then((res) => res.json())
+      .then((data) => setLogs(data.logs || []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredLogs = logs.filter(
+    (l) =>
+      l.actor_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.details.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div style={{ background: "#1e293b", padding: "1.5rem", borderRadius: "12px", border: "1px solid #334155" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+        <div>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: "700" }}>📜 System Audit Trail</h2>
+          <p style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+            Immutable record of management approvals, rejections, score entries, and access locks.
+          </p>
+        </div>
+
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Filter audit logs..."
+          style={{
+            padding: "0.5rem 0.85rem",
+            background: "#0f172a",
+            border: "1px solid #334155",
+            borderRadius: "6px",
+            color: "#fff",
+            fontSize: "0.85rem",
+            width: "240px",
+          }}
+        />
+      </div>
+
+      {loading ? (
+        <p style={{ color: "#94a3b8", fontSize: "0.85rem" }}>Loading audit trail...</p>
+      ) : filteredLogs.length === 0 ? (
+        <p style={{ color: "#64748b", fontSize: "0.85rem" }}>No audit log entries found.</p>
+      ) : (
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+            <thead style={{ background: "#0f172a", color: "#94a3b8" }}>
+              <tr>
+                <th style={{ padding: "0.6rem 1rem" }}>Timestamp</th>
+                <th style={{ padding: "0.6rem 1rem" }}>Actor</th>
+                <th style={{ padding: "0.6rem 1rem" }}>Role</th>
+                <th style={{ padding: "0.6rem 1rem" }}>Action</th>
+                <th style={{ padding: "0.6rem 1rem" }}>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLogs.map((log) => (
+                <tr key={log.id} style={{ borderBottom: "1px solid #334155" }}>
+                  <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap", color: "#cbd5e1" }}>
+                    {new Date(log.created_at).toLocaleString()}
+                  </td>
+                  <td style={{ padding: "0.6rem 1rem", fontWeight: "600", color: "#60a5fa" }}>{log.actor_email}</td>
+                  <td style={{ padding: "0.6rem 1rem", textTransform: "capitalize" }}>{log.actor_role}</td>
+                  <td style={{ padding: "0.6rem 1rem" }}>
+                    <span
+                      style={{
+                        padding: "0.15rem 0.45rem",
+                        borderRadius: "4px",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        background:
+                          log.action.includes("approved")
+                            ? "#065f46"
+                            : log.action.includes("rejected")
+                            ? "#881337"
+                            : log.action.includes("locked")
+                            ? "#854d0e"
+                            : "#334155",
+                        color:
+                          log.action.includes("approved")
+                            ? "#34d399"
+                            : log.action.includes("rejected")
+                            ? "#fecdd3"
+                            : log.action.includes("locked")
+                            ? "#fef08a"
+                            : "#cbd5e1",
+                      }}
+                    >
+                      {log.action}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0.6rem 1rem" }}>{log.details}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

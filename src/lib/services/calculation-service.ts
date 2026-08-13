@@ -1,4 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createNotification } from "@/lib/notifications";
+import { createAuditLog } from "@/lib/audit";
 import { GradeBoundary, Score } from "@/types/db";
 
 const DEFAULT_GRADE_BOUNDARIES: GradeBoundary[] = [
@@ -26,6 +28,7 @@ interface RegWithScore {
   session: string;
   semester: string;
   status: string;
+  course?: { code: string; title: string };
   score?: Score | Score[];
 }
 
@@ -42,12 +45,13 @@ export async function approveCourseScores(
   courseId: string,
   sessionName: string,
   semesterName: string,
-  adminEmail: string = "Management Admin"
+  adminEmail: string = "Management Admin",
+  adminId: string = "mgmt_admin"
 ) {
   // 1. Fetch all course registrations for this course, session, and semester
   const { data: rawRegs, error: fetchErr } = await supabaseAdmin
     .from("course_registrations")
-    .select("id, student_id, course_id, session, semester, status, score:scores(*)")
+    .select("id, student_id, course_id, session, semester, status, course:courses(code, title), score:scores(*)")
     .eq("course_id", courseId)
     .eq("session", sessionName)
     .eq("semester", semesterName);
@@ -60,7 +64,7 @@ export async function approveCourseScores(
     throw new Error("No student course registrations found to approve for this course.");
   }
 
-  // 2. Validate missing scores: ensure EVERY student has a score entry
+  // 2. Validate missing scores
   const missingScoreStudents: string[] = [];
   regs.forEach((reg) => {
     const scoreObj = Array.isArray(reg.score) ? reg.score[0] : reg.score;
@@ -97,8 +101,9 @@ export async function approveCourseScores(
 
   const affectedStudentIds = new Set<string>();
   const regIds: string[] = [];
+  const courseCode = regs[0]?.course?.code || "Course";
 
-  // 4. Update each Score record with grade, grade_point, approval timestamp & policy snapshot
+  // 4. Update each Score record
   for (const reg of regs) {
     regIds.push(reg.id);
     affectedStudentIds.add(reg.student_id);
@@ -132,9 +137,23 @@ export async function approveCourseScores(
 
   if (updateRegErr) throw updateRegErr;
 
-  // 6. Recalculate Session GPA & Cumulative CGPA for all affected students
+  // 6. Audit log & Notifications for students
+  await createAuditLog(
+    adminId,
+    adminEmail,
+    "management",
+    "score_approved",
+    `Approved course scores for ${courseCode} (${sessionName} ${semesterName} Semester) for ${affectedStudentIds.size} student(s)`
+  );
+
   for (const studentId of Array.from(affectedStudentIds)) {
     await recalculateStudentSummaries(studentId, sessionName, semesterName);
+    await createNotification(
+      studentId,
+      "student",
+      `Your official result for ${courseCode} (${sessionName}) has been approved by management and published.`,
+      "results_published"
+    );
   }
 
   return {
@@ -145,7 +164,6 @@ export async function approveCourseScores(
 }
 
 export async function recalculateStudentSummaries(studentId: string, sessionName: string, semesterName: string) {
-  // Fetch ALL approved registrations for this student across ALL sessions to date
   const { data: rawAllApproved, error } = await supabaseAdmin
     .from("course_registrations")
     .select("id, session, semester, status, course:courses(unit), score:scores(*)")
@@ -181,7 +199,6 @@ export async function recalculateStudentSummaries(studentId: string, sessionName
   const sessionGpa = sessionUnits > 0 ? Number((sessionPoints / sessionUnits).toFixed(2)) : 0.0;
   const cumulativeCgpa = cumulativeUnits > 0 ? Number((cumulativePoints / cumulativeUnits).toFixed(2)) : 0.0;
 
-  // Upsert into student_result_summaries
   await supabaseAdmin
     .from("student_result_summaries")
     .upsert(

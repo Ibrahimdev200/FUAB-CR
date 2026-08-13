@@ -155,3 +155,29 @@ export interface StudentResultSummary {
   cumulative_units: number;
   updated_at: string;
 }
+
+export interface AuditLog {
+  id: string;
+  actor_id: string;
+  actor_email: string;
+  actor_role: "management" | "lecturer";
+  action: string;
+  details: string;
+  created_at: string;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  user_type: "student" | "lecturer" | "management";
+  message: string;
+  type:
+    | "registration_saved"
+    | "scores_submitted"
+    | "scores_rejected"
+    | "results_published"
+    | "account_locked"
+    | "account_unlocked";
+  is_read: boolean;
+  created_at: string;
+}

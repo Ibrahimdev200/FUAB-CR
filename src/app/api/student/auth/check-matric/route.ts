@@ -1,8 +1,20 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    // Extract IP address from headers
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const { isLimited } = checkRateLimit(ip, 10, 60000); // 10 attempts per minute
+
+    if (isLimited) {
+      return NextResponse.json(
+        { error: "Too many matric lookup attempts. Please wait 1 minute before trying again." },
+        { status: 429 }
+      );
+    }
+
     const { matric_number } = await req.json();
 
     if (!matric_number || !matric_number.trim()) {

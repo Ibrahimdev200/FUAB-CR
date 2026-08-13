@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(req: Request) {
   try {
@@ -57,6 +58,15 @@ export async function POST(req: Request) {
       } else {
         registeredCount++;
       }
+    }
+
+    if (registeredCount > 0) {
+      await createNotification(
+        session.userId,
+        "student",
+        `Your course registration for ${registeredCount} course(s) (${activeSession} Session) was submitted successfully.`,
+        "registration_saved"
+      );
     }
 
     return NextResponse.json({

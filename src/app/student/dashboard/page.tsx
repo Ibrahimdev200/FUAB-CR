@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Student, Course, CourseRegistration, Department } from "@/types/db";
+import NotificationBell from "@/components/NotificationBell";
 
 type TabType = "register" | "my_courses" | "results";
 
@@ -60,20 +61,23 @@ export default function StudentDashboardPage() {
           <h1 style={{ fontSize: "1.2rem", fontWeight: "700" }}>Student Portal</h1>
         </div>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "0.4rem 0.85rem",
-            background: "#334155",
-            color: "#f8fafc",
-            border: "1px solid #475569",
-            borderRadius: "6px",
-            fontSize: "0.85rem",
-            cursor: "pointer",
-          }}
-        >
-          Sign Out
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <NotificationBell role="student" />
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "0.4rem 0.85rem",
+              background: "#334155",
+              color: "#f8fafc",
+              border: "1px solid #475569",
+              borderRadius: "6px",
+              fontSize: "0.85rem",
+              cursor: "pointer",
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
       </header>
 
       {/* Compact Profile & Status Card */}

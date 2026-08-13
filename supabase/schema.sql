@@ -152,6 +152,28 @@ CREATE TABLE IF NOT EXISTS student_result_summaries (
   UNIQUE(student_id, session, semester)
 );
 
+-- 14. AuditLogs
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id TEXT NOT NULL,
+  actor_email TEXT NOT NULL,
+  actor_role TEXT NOT NULL, -- 'management' or 'lecturer'
+  action TEXT NOT NULL, -- 'score_entered', 'score_approved', 'score_rejected', 'student_locked', 'student_unlocked', 'student_upload'
+  details TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 15. Notifications
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL,
+  user_type TEXT NOT NULL, -- 'student', 'lecturer', 'management'
+  message TEXT NOT NULL,
+  type TEXT NOT NULL, -- 'registration_saved', 'scores_submitted', 'scores_rejected', 'results_published', 'account_locked', 'account_unlocked'
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Seed initial AcademicSettings row if empty
 INSERT INTO academic_settings (active_session, active_semester)
 SELECT '2025/2026', 'First'

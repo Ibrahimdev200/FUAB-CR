@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createNotification } from "@/lib/notifications";
+import { createAuditLog } from "@/lib/audit";
 import { RejectionHistoryEntry, Score } from "@/types/db";
 
 export async function POST(req: Request, { params }: { params: Promise<{ courseId: string }> }) {
@@ -9,67 +11,83 @@ export async function POST(req: Request, { params }: { params: Promise<{ courseI
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { courseId } = await params;
-    const { academic_session, semester, note } = await req.json();
+    const { academic_session, semester, rejection_note } = await req.json();
 
-    if (!note || !note.trim()) {
-      return NextResponse.json({ error: "A rejection note is required" }, { status: 400 });
+    if (!rejection_note || !rejection_note.trim()) {
+      return NextResponse.json({ error: "Rejection note is required" }, { status: 400 });
     }
 
-    if (!academic_session || !semester) {
-      return NextResponse.json({ error: "Session and Semester are required" }, { status: 400 });
-    }
-
-    // Fetch all registrations for this course, session, and semester
-    const { data: regs, error: fetchErr } = await supabaseAdmin
+    // 1. Fetch course registrations for this course & session
+    const { data: rawRegs, error: fetchErr } = await supabaseAdmin
       .from("course_registrations")
-      .select("id, score:scores(*)")
+      .select("id, student_id, course_id, session, score:scores(*)")
       .eq("course_id", courseId)
       .eq("session", academic_session)
-      .eq("semester", semester)
-      .in("status", ["scored", "approved"]);
+      .eq("semester", semester);
 
     if (fetchErr) throw fetchErr;
 
-    if (!regs || regs.length === 0) {
-      return NextResponse.json({ error: "No registrations found to reject for this course." }, { status: 400 });
+    if (!rawRegs || rawRegs.length === 0) {
+      return NextResponse.json({ error: "No course registrations found to reject" }, { status: 404 });
     }
 
-    const regIds = regs.map((r) => r.id);
+    const regIds = rawRegs.map((r) => r.id);
     const rejectionEntry: RejectionHistoryEntry = {
       rejectedAt: new Date().toISOString(),
-      rejectedBy: session.email || "Management",
-      note: note.trim(),
+      rejectedBy: session.email || "Management Admin",
+      note: rejection_note.trim(),
     };
 
-    // Update each score with rejection note & history
-    for (const reg of regs) {
-      const scoreObj: Score | null = Array.isArray(reg.score) ? reg.score[0] : (reg.score as Score | null);
+    // 2. Update scores table with rejection note and history
+    let lecturerIdToNotify: string | null = null;
 
+    for (const reg of rawRegs) {
+      const scoreObj: Score | null = Array.isArray(reg.score) ? reg.score[0] : (reg.score as Score | null);
       if (scoreObj) {
-        const existingHistory = Array.isArray(scoreObj.rejection_history)
-          ? (scoreObj.rejection_history as unknown as RejectionHistoryEntry[])
+        if (!lecturerIdToNotify && scoreObj.entered_by_lecturer_id) {
+          lecturerIdToNotify = scoreObj.entered_by_lecturer_id;
+        }
+
+        const history: RejectionHistoryEntry[] = Array.isArray(scoreObj.rejection_history)
+          ? scoreObj.rejection_history
           : [];
-        const updatedHistory = [...existingHistory, rejectionEntry];
 
         await supabaseAdmin
           .from("scores")
           .update({
+            rejection_note: rejection_note.trim(),
+            rejection_history: [...history, rejectionEntry],
             approved_by_management: false,
-            approved_at: null,
-            rejection_note: note.trim(),
-            rejection_history: updatedHistory,
           })
           .eq("id", scoreObj.id);
       }
     }
 
-    // Set course_registrations status back to 'rejected'
-    const { error: updateRegErr } = await supabaseAdmin
+    // 3. Update course_registrations status to 'rejected'
+    const { error: regUpdateErr } = await supabaseAdmin
       .from("course_registrations")
       .update({ status: "rejected" })
       .in("id", regIds);
 
-    if (updateRegErr) throw updateRegErr;
+    if (regUpdateErr) throw regUpdateErr;
+
+    // 4. Audit Log & Lecturer Notification
+    await createAuditLog(
+      session.userId,
+      session.email || "Management Admin",
+      "management",
+      "score_rejected",
+      `Rejected score submission for course ${courseId}. Rejection note: "${rejection_note.trim()}"`
+    );
+
+    if (lecturerIdToNotify) {
+      await createNotification(
+        lecturerIdToNotify,
+        "lecturer",
+        `Management rejected score submission for your assigned course. Note: "${rejection_note.trim()}"`,
+        "scores_rejected"
+      );
+    }
 
     return NextResponse.json({ success: true, rejectedCount: regIds.length });
   } catch (err: unknown) {
