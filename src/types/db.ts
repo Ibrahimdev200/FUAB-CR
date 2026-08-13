@@ -143,3 +143,15 @@ export interface AcademicSettings {
   active_semester: string;
   updated_at: string;
 }
+
+export interface StudentResultSummary {
+  id: string;
+  student_id: string;
+  session: string;
+  semester: string;
+  gpa: number;
+  cgpa: number;
+  total_units: number;
+  cumulative_units: number;
+  updated_at: string;
+}

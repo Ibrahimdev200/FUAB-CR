@@ -9,6 +9,7 @@ interface ScoreRecord {
   grade: string;
   grade_point: number;
   approved_by_management: boolean;
+  policy_snapshot?: Record<string, unknown> | null;
 }
 
 interface CourseRecord {
@@ -53,39 +54,45 @@ export async function GET(req: Request) {
       });
     }
 
-    // 2. Fetch ALL approved registrations for cumulative CGPA
-    const { data: allRegs, error: allErr } = await supabaseAdmin
+    // 2. Fetch student_result_summaries for pre-computed fast GPA & CGPA lookup
+    const { data: summaries } = await supabaseAdmin
+      .from("student_result_summaries")
+      .select("*")
+      .eq("student_id", session.userId);
+
+    let summaryCgpa = "0.00";
+    let summaryGpa = "0.00";
+    let totalSessionUnits = 0;
+    let cumulativeUnits = 0;
+
+    if (summaries && summaries.length > 0) {
+      // Latest CGPA across summaries
+      const latestSummary = summaries[summaries.length - 1];
+      summaryCgpa = Number(latestSummary.cgpa || 0).toFixed(2);
+      cumulativeUnits = Number(latestSummary.cumulative_units || 0);
+
+      // Match requested session summary
+      const currentSessionSummary = summaries.find((s) => s.session === requestedSession);
+      if (currentSessionSummary) {
+        summaryGpa = Number(currentSessionSummary.gpa || 0).toFixed(2);
+        totalSessionUnits = Number(currentSessionSummary.total_units || 0);
+      }
+    }
+
+    // 3. Fetch approved course registrations
+    let query = supabaseAdmin
       .from("course_registrations")
       .select("*, course:courses(*), score:scores(*)")
       .eq("student_id", session.userId)
       .eq("status", "approved");
 
-    if (allErr) throw allErr;
-
-    // Calculate Cumulative CGPA
-    let totalCgpaUnits = 0;
-    let totalCgpaPoints = 0;
-
-    (allRegs as unknown as RegRecord[] || []).forEach((reg) => {
-      const scoreObj = Array.isArray(reg.score) ? reg.score[0] : reg.score;
-      if (reg.course && scoreObj && scoreObj.approved_by_management) {
-        const units = Number(reg.course.unit || 0);
-        const gradePoint = Number(scoreObj.grade_point || 0);
-        totalCgpaUnits += units;
-        totalCgpaPoints += units * gradePoint;
-      }
-    });
-
-    const cgpa = totalCgpaUnits > 0 ? (totalCgpaPoints / totalCgpaUnits).toFixed(2) : "0.00";
-
-    // 3. Filter for requested session GPA & course score details
-    let sessionRegs = (allRegs as unknown as RegRecord[] || []);
     if (requestedSession) {
-      sessionRegs = sessionRegs.filter((r) => r.session === requestedSession);
+      query = query.eq("session", requestedSession);
     }
 
-    let totalGpaUnits = 0;
-    let totalGpaPoints = 0;
+    const { data: rawRegs, error: fetchErr } = await query;
+    if (fetchErr) throw fetchErr;
+
     const courseResults: Array<{
       code: string;
       title: string;
@@ -96,46 +103,40 @@ export async function GET(req: Request) {
       totalScore: number;
       grade: string;
       gradePoint: number;
+      policySnapshot: Record<string, unknown> | null;
     }> = [];
 
-    sessionRegs.forEach((reg) => {
+    const availableSessions = Array.from(
+      new Set((summaries || []).map((s) => s.session))
+    );
+
+    (rawRegs as unknown as RegRecord[] || []).forEach((reg) => {
       const scoreObj = Array.isArray(reg.score) ? reg.score[0] : reg.score;
+
       if (reg.course && scoreObj && scoreObj.approved_by_management) {
-        const units = Number(reg.course.unit || 0);
-        const gradePoint = Number(scoreObj.grade_point || 0);
-
-        totalGpaUnits += units;
-        totalGpaPoints += units * gradePoint;
-
         courseResults.push({
           code: reg.course.code,
           title: reg.course.title,
-          unit: units,
+          unit: Number(reg.course.unit || 0),
           semester: reg.semester,
           caScore: Number(scoreObj.ca_score || 0),
           examScore: Number(scoreObj.exam_score || 0),
           totalScore: Number(scoreObj.total_score || scoreObj.ca_score + scoreObj.exam_score),
           grade: scoreObj.grade || "N/A",
-          gradePoint: gradePoint,
+          gradePoint: Number(scoreObj.grade_point || 0),
+          policySnapshot: (scoreObj.policy_snapshot as Record<string, unknown>) || null,
         });
       }
     });
 
-    const gpa = totalGpaUnits > 0 ? (totalGpaPoints / totalGpaUnits).toFixed(2) : "0.00";
-
-    // Extract available sessions for dropdown
-    const availableSessions = Array.from(
-      new Set((allRegs as unknown as RegRecord[] || []).map((r) => r.session))
-    );
-
     return NextResponse.json({
       isLocked: false,
       results: courseResults,
-      sessionGpa: gpa,
-      cumulativeCgpa: cgpa,
-      totalSessionUnits: totalGpaUnits,
-      totalCumulativeUnits: totalCgpaUnits,
-      availableSessions,
+      sessionGpa: summaryGpa,
+      cumulativeCgpa: summaryCgpa,
+      totalSessionUnits,
+      totalCumulativeUnits: cumulativeUnits,
+      availableSessions: availableSessions.length > 0 ? availableSessions : ["2025/2026"],
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

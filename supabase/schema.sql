@@ -138,6 +138,20 @@ CREATE TABLE IF NOT EXISTS academic_settings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 13. StudentResultSummary
+CREATE TABLE IF NOT EXISTS student_result_summaries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+  session TEXT NOT NULL,
+  semester TEXT NOT NULL,
+  gpa NUMERIC NOT NULL DEFAULT 0.00,
+  cgpa NUMERIC NOT NULL DEFAULT 0.00,
+  total_units INT NOT NULL DEFAULT 0,
+  cumulative_units INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(student_id, session, semester)
+);
+
 -- Seed initial AcademicSettings row if empty
 INSERT INTO academic_settings (active_session, active_semester)
 SELECT '2025/2026', 'First'
