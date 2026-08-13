@@ -2,20 +2,21 @@
 
 import { useEffect, useState } from "react";
 
-interface StatusResponse {
+interface SupabaseStatusResponse {
   status: string;
   message: string;
-  projectId: string;
-  isKeyConfigured: boolean;
+  supabaseUrl: string;
+  isConfigured: boolean;
   error?: string;
+  facultiesCount?: number;
 }
 
 export default function HomePage() {
-  const [status, setStatus] = useState<StatusResponse | null>(null);
+  const [status, setStatus] = useState<SupabaseStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/firebase-status")
+    fetch("/api/supabase-status")
       .then((res) => res.json())
       .then((data) => {
         setStatus(data);
@@ -24,9 +25,9 @@ export default function HomePage() {
       .catch((err) => {
         setStatus({
           status: "error",
-          message: "Failed to connect to backend",
-          projectId: "Unknown",
-          isKeyConfigured: false,
+          message: "Failed to connect to backend service.",
+          supabaseUrl: "Unknown",
+          isConfigured: false,
           error: String(err),
         });
         setLoading(false);
@@ -53,11 +54,11 @@ export default function HomePage() {
         }}
       >
         <h2 style={{ fontSize: "1.3rem", color: "#f8fafc", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          🔥 Firebase Connection Status
+          ⚡ Supabase Database Connection Status
         </h2>
 
         {loading ? (
-          <p style={{ color: "#94a3b8" }}>Checking Firebase status...</p>
+          <p style={{ color: "#94a3b8" }}>Checking Supabase database connection...</p>
         ) : (
           <div>
             <div
@@ -72,11 +73,15 @@ export default function HomePage() {
                 color: status?.status === "connected" ? "#34d399" : "#fef08a",
               }}
             >
-              {status?.status === "connected" ? "✓ Connected & Active" : "⚠️ Configuration Required"}
+              {status?.status === "connected"
+                ? "✓ Connected to Supabase"
+                : status?.status === "table_not_found_or_error"
+                ? "⚙️ Project Connected (Schema Pending)"
+                : "⚠️ Credentials Required"}
             </div>
 
             <p style={{ color: "#cbd5e1", marginBottom: "0.5rem" }}>
-              <strong>Project ID:</strong> <code>{status?.projectId}</code>
+              <strong>Project URL:</strong> <code>{status?.supabaseUrl}</code>
             </p>
 
             <p style={{ color: "#cbd5e1", marginBottom: "1rem" }}>
@@ -87,15 +92,20 @@ export default function HomePage() {
               <div
                 style={{
                   background: "#0f172a",
-                  padding: "1rem",
+                  padding: "1.25rem",
                   borderRadius: "8px",
-                  borderLeft: "4px solid #f59e0b",
+                  borderLeft: "4px solid #3b82f6",
                   fontSize: "0.9rem",
                   color: "#94a3b8",
+                  marginTop: "1rem",
                 }}
               >
-                <p style={{ fontWeight: "600", color: "#f59e0b", marginBottom: "0.25rem" }}>Next Step:</p>
-                Follow the 4 steps provided below to paste your Firebase credentials into your <code>.env</code> file. The app will update automatically upon saving!
+                <p style={{ fontWeight: "600", color: "#3b82f6", marginBottom: "0.5rem" }}>Quick Setup Checklist:</p>
+                <ol style={{ paddingLeft: "1.2rem", lineHeight: "1.6" }}>
+                  <li>Create a project at <a href="https://app.supabase.com" target="_blank" rel="noreferrer" style={{ color: "#60a5fa", textDecoration: "underline" }}>app.supabase.com</a>.</li>
+                  <li>Copy your <strong>Project URL</strong> and <strong>anon API key</strong> into your <code>.env</code> file.</li>
+                  <li>Run the SQL script in <code>supabase/schema.sql</code> in your Supabase SQL Editor to create all 11 tables.</li>
+                </ol>
               </div>
             )}
           </div>

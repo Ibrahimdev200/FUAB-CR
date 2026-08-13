@@ -3,16 +3,16 @@ export type CourseRegistrationStatus = "registered" | "scored" | "approved";
 export interface Faculty {
   id: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Department {
   id: string;
   name: string;
-  facultyId: string;
-  createdAt: string;
-  updatedAt: string;
+  faculty_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Course {
@@ -22,89 +22,89 @@ export interface Course {
   unit: number;
   level: number; // e.g. 100, 200, 300, 400
   semester: string; // "First" or "Second"
-  departmentId: string;
-  createdAt: string;
-  updatedAt: string;
+  department_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Student {
   id: string;
-  matricNumber: string;
-  fullName: string;
-  departmentId: string;
+  matric_number: string;
+  full_name: string;
+  department_id: string;
   level: number;
-  passwordHash?: string | null;
-  isRegisteredOnPortal: boolean;
-  isLocked: boolean; // access restriction flag for results
-  createdAt: string;
-  updatedAt: string;
+  password_hash?: string | null;
+  is_registered_on_portal: boolean;
+  is_locked: boolean; // access restriction flag for results
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PreloadedMatric {
   id: string;
-  matricNumber: string;
-  fullName: string;
-  departmentId: string;
+  matric_number: string;
+  full_name: string;
+  department_id: string;
   level: number;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Lecturer {
   id: string;
-  fullName: string;
+  full_name: string;
   email: string;
-  passwordHash: string;
-  createdAt: string;
-  updatedAt: string;
+  password_hash: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface LecturerCourseAssignment {
   id: string;
-  lecturerId: string;
-  courseId: string;
+  lecturer_id: string;
+  course_id: string;
   session: string; // e.g. "2025/2026"
-  createdAt: string;
+  created_at: string;
 }
 
 export interface CourseRegistration {
   id: string;
-  studentId: string;
-  courseId: string;
+  student_id: string;
+  course_id: string;
   session: string; // e.g. "2025/2026"
   semester: string; // "First" or "Second"
   status: CourseRegistrationStatus;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Score {
   id: string;
-  courseRegistrationId: string;
-  caScore: number;
-  examScore: number;
-  totalScore: number;
-  grade?: string | null; // e.g. "A", "B", "C"
-  gradePoint?: number | null; // e.g. 5.0, 4.0
-  enteredByLecturerId: string;
-  enteredAt: string;
-  approvedByManagement: boolean;
-  approvedAt?: string | null;
-  policySnapshot?: Record<string, unknown> | string | null;
+  course_registration_id: string;
+  ca_score: number;
+  exam_score: number;
+  total_score: number;
+  grade?: string | null;
+  grade_point?: number | null;
+  entered_by_lecturer_id: string;
+  entered_at: string;
+  approved_by_management: boolean;
+  approved_at?: string | null;
+  policy_snapshot?: Record<string, unknown> | string | null;
 }
 
 export interface GradingPolicy {
   id: string;
   session: string;
-  caWeightPercent: number;
-  examWeightPercent: number;
-  gradeBoundaries: Record<string, [number, number, number]> | string; // e.g. {"A": [70, 100, 5.0]}
-  createdAt: string;
-  updatedAt: string;
+  ca_weight_percent: number;
+  exam_weight_percent: number;
+  grade_boundaries: Record<string, [number, number, number]> | string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ManagementAdmin {
   id: string;
   email: string;
-  passwordHash: string;
-  createdAt: string;
-  updatedAt: string;
+  password_hash: string;
+  created_at: string;
+  updated_at: string;
 }
