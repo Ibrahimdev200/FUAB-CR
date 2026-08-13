@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS students (
   password_hash TEXT,
   is_registered_on_portal BOOLEAN DEFAULT FALSE,
   is_locked BOOLEAN DEFAULT FALSE, -- Access restriction for results
+  lock_reason TEXT, -- Management note when locked (e.g. "owing school fees")
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -86,7 +87,7 @@ CREATE TABLE IF NOT EXISTS course_registrations (
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
   session TEXT NOT NULL, -- e.g. "2025/2026"
   semester TEXT NOT NULL, -- "First" or "Second"
-  status TEXT NOT NULL DEFAULT 'registered', -- 'registered', 'scored', 'approved'
+  status TEXT NOT NULL DEFAULT 'registered', -- 'registered', 'scored', 'approved', 'rejected'
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(student_id, course_id, session, semester)
 );
@@ -104,6 +105,8 @@ CREATE TABLE IF NOT EXISTS scores (
   entered_at TIMESTAMPTZ DEFAULT NOW(),
   approved_by_management BOOLEAN DEFAULT FALSE,
   approved_at TIMESTAMPTZ,
+  rejection_note TEXT,
+  rejection_history JSONB DEFAULT '[]'::jsonb,
   policy_snapshot JSONB
 );
 
@@ -126,3 +129,16 @@ CREATE TABLE IF NOT EXISTS management_admins (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 12. AcademicSettings
+CREATE TABLE IF NOT EXISTS academic_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  active_session TEXT NOT NULL DEFAULT '2025/2026',
+  active_semester TEXT NOT NULL DEFAULT 'First',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Seed initial AcademicSettings row if empty
+INSERT INTO academic_settings (active_session, active_semester)
+SELECT '2025/2026', 'First'
+WHERE NOT EXISTS (SELECT 1 FROM academic_settings);

@@ -1,4 +1,4 @@
-export type CourseRegistrationStatus = "registered" | "scored" | "approved";
+export type CourseRegistrationStatus = "registered" | "scored" | "approved" | "rejected";
 
 export interface Faculty {
   id: string;
@@ -13,6 +13,7 @@ export interface Department {
   faculty_id: string;
   created_at: string;
   updated_at: string;
+  faculty?: Faculty;
 }
 
 export interface Course {
@@ -25,6 +26,7 @@ export interface Course {
   department_id: string;
   created_at: string;
   updated_at: string;
+  department?: Department;
 }
 
 export interface Student {
@@ -36,8 +38,10 @@ export interface Student {
   password_hash?: string | null;
   is_registered_on_portal: boolean;
   is_locked: boolean; // access restriction flag for results
+  lock_reason?: string | null;
   created_at: string;
   updated_at: string;
+  department?: Department;
 }
 
 export interface PreloadedMatric {
@@ -47,6 +51,7 @@ export interface PreloadedMatric {
   department_id: string;
   level: number;
   created_at: string;
+  department?: Department;
 }
 
 export interface Lecturer {
@@ -56,6 +61,7 @@ export interface Lecturer {
   password_hash: string;
   created_at: string;
   updated_at: string;
+  assignments?: LecturerCourseAssignment[];
 }
 
 export interface LecturerCourseAssignment {
@@ -64,6 +70,8 @@ export interface LecturerCourseAssignment {
   course_id: string;
   session: string; // e.g. "2025/2026"
   created_at: string;
+  lecturer?: Lecturer;
+  course?: Course;
 }
 
 export interface CourseRegistration {
@@ -74,6 +82,15 @@ export interface CourseRegistration {
   semester: string; // "First" or "Second"
   status: CourseRegistrationStatus;
   created_at: string;
+  student?: Student;
+  course?: Course;
+  score?: Score;
+}
+
+export interface RejectionHistoryEntry {
+  rejectedAt: string;
+  rejectedBy: string;
+  note: string;
 }
 
 export interface Score {
@@ -88,7 +105,18 @@ export interface Score {
   entered_at: string;
   approved_by_management: boolean;
   approved_at?: string | null;
+  rejection_note?: string | null;
+  rejection_history?: RejectionHistoryEntry[] | null;
   policy_snapshot?: Record<string, unknown> | string | null;
+  course_registration?: CourseRegistration;
+  entered_by_lecturer?: Lecturer;
+}
+
+export interface GradeBoundary {
+  grade: string;
+  minScore: number;
+  maxScore: number;
+  gradePoint: number;
 }
 
 export interface GradingPolicy {
@@ -96,7 +124,7 @@ export interface GradingPolicy {
   session: string;
   ca_weight_percent: number;
   exam_weight_percent: number;
-  grade_boundaries: Record<string, [number, number, number]> | string;
+  grade_boundaries: GradeBoundary[] | Record<string, unknown> | string;
   created_at: string;
   updated_at: string;
 }
@@ -106,5 +134,12 @@ export interface ManagementAdmin {
   email: string;
   password_hash: string;
   created_at: string;
+  updated_at: string;
+}
+
+export interface AcademicSettings {
+  id: string;
+  active_session: string;
+  active_semester: string;
   updated_at: string;
 }
