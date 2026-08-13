@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LecturerIcon } from "@/components/Icons";
 
 export default function LecturerLoginPage() {
   const router = useRouter();
@@ -48,21 +49,22 @@ export default function LecturerLoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: "radial-gradient(ellipse at 50% 0%, #1e1b4b 0%, #090d16 80%)",
         color: "#f8fafc",
-        padding: "1rem",
+        padding: "1.5rem",
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: "420px",
-          background: "#1e293b",
-          border: "1px solid #334155",
+          maxWidth: "440px",
+          background: "#131b2e",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: "16px",
           padding: "2.5rem 2rem",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
         }}
+        className="animate-fade-in"
       >
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <div
@@ -72,32 +74,32 @@ export default function LecturerLoginPage() {
               justifyContent: "center",
               width: "56px",
               height: "56px",
-              borderRadius: "14px",
-              background: "rgba(59, 130, 246, 0.15)",
-              color: "#3b82f6",
-              fontSize: "1.75rem",
+              borderRadius: "16px",
+              background: "rgba(5, 150, 105, 0.12)",
+              border: "1px solid rgba(5, 150, 105, 0.25)",
+              color: "#34d399",
               marginBottom: "1rem",
             }}
           >
-            👨‍🏫
+            <LecturerIcon size={28} />
           </div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#f8fafc" }}>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#ffffff" }}>
             Lecturer Portal
           </h1>
-          <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginTop: "0.25rem" }}>
-            Score Entry & Grade Submission
+          <p style={{ color: "#94a3b8", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            Course Roster & Grade Submission System
           </p>
         </div>
 
         {error && (
           <div
             style={{
-              background: "#450a0a",
-              border: "1px solid #991b1b",
+              background: "rgba(153, 27, 27, 0.2)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
               color: "#fca5a5",
-              padding: "0.75rem 1rem",
+              padding: "0.85rem 1rem",
               borderRadius: "8px",
-              fontSize: "0.875rem",
+              fontSize: "0.85rem",
               marginBottom: "1.5rem",
             }}
           >
@@ -107,7 +109,7 @@ export default function LecturerLoginPage() {
 
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
+            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
               Lecturer Email Address
             </label>
             <input
@@ -120,17 +122,16 @@ export default function LecturerLoginPage() {
                 width: "100%",
                 padding: "0.75rem 1rem",
                 borderRadius: "8px",
-                background: "#0f172a",
-                border: "1px solid #334155",
-                color: "#f8fafc",
+                background: "#0b1220",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#ffffff",
                 fontSize: "0.95rem",
-                outline: "none",
               }}
             />
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
+            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
               Password
             </label>
             <input
@@ -143,11 +144,10 @@ export default function LecturerLoginPage() {
                 width: "100%",
                 padding: "0.75rem 1rem",
                 borderRadius: "8px",
-                background: "#0f172a",
-                border: "1px solid #334155",
-                color: "#f8fafc",
+                background: "#0b1220",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "#ffffff",
                 fontSize: "0.95rem",
-                outline: "none",
               }}
             />
           </div>
@@ -160,10 +160,10 @@ export default function LecturerLoginPage() {
               width: "100%",
               padding: "0.85rem",
               borderRadius: "8px",
-              background: "#3b82f6",
+              background: "#059669",
               color: "#ffffff",
               fontWeight: "600",
-              fontSize: "1rem",
+              fontSize: "0.95rem",
               border: "none",
               cursor: loading ? "not-allowed" : "pointer",
               opacity: loading ? 0.7 : 1,
@@ -173,7 +173,7 @@ export default function LecturerLoginPage() {
           </button>
         </form>
 
-        <p style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.75rem", color: "#64748b" }}>
+        <p style={{ marginTop: "1.75rem", textAlign: "center", fontSize: "0.75rem", color: "#64748b", lineHeight: "1.5" }}>
           Notice: Accounts are created strictly by School Management. Contact management if you do not have an account.
         </p>
       </div>

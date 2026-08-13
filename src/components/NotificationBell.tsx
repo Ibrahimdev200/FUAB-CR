@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Notification } from "@/types/db";
+import { BellIcon, CheckIcon } from "@/components/Icons";
 
 interface NotificationBellProps {
   role: "student" | "lecturer" | "management";
@@ -15,11 +16,10 @@ export default function NotificationBell({ role }: NotificationBellProps) {
 
   useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 30000); // refresh every 30s
+    const interval = setInterval(loadNotifications, 30000);
     return () => clearInterval(interval);
   }, [role]);
 
-  // Click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -74,39 +74,38 @@ export default function NotificationBell({ role }: NotificationBellProps) {
 
   return (
     <div ref={dropdownRef} style={{ position: "relative", display: "inline-block" }}>
-      {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
           position: "relative",
-          background: "#1e293b",
-          border: "1px solid #334155",
+          background: "rgba(30, 41, 59, 0.7)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
           borderRadius: "8px",
-          padding: "0.4rem 0.65rem",
+          padding: "0.5rem 0.65rem",
           cursor: "pointer",
-          fontSize: "1.1rem",
-          color: "#f8fafc",
+          color: "#94a3b8",
           display: "flex",
           alignItems: "center",
           gap: "0.25rem",
+          transition: "all 0.2s ease",
         }}
-        title="Notifications"
+        title="System Notifications"
       >
-        🔔
+        <BellIcon size={18} className="text-slate-300" />
         {unreadCount > 0 && (
           <span
             style={{
               position: "absolute",
-              top: "-5px",
-              right: "-5px",
-              background: "#ef4444",
+              top: "-4px",
+              right: "-4px",
+              background: "#6366f1",
               color: "#ffffff",
-              fontSize: "0.7rem",
-              fontWeight: "800",
+              fontSize: "0.65rem",
+              fontWeight: "700",
               borderRadius: "10px",
-              padding: "0.1rem 0.4rem",
+              padding: "0.15rem 0.4rem",
               lineHeight: "1",
-              border: "2px solid #0f172a",
+              border: "2px solid #090d16",
             }}
           >
             {unreadCount}
@@ -114,61 +113,70 @@ export default function NotificationBell({ role }: NotificationBellProps) {
         )}
       </button>
 
-      {/* Notifications Dropdown Popup */}
       {isOpen && (
         <div
           style={{
             position: "absolute",
             right: 0,
-            top: "calc(100% + 8px)",
-            width: "320px",
-            maxHeight: "400px",
-            background: "#1e293b",
-            border: "1px solid #334155",
+            top: "calc(100% + 10px)",
+            width: "340px",
+            maxHeight: "420px",
+            background: "#131b2e",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
             borderRadius: "12px",
-            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5)",
             zIndex: 1000,
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
           }}
+          className="animate-fade-in"
         >
-          {/* Dropdown Header */}
           <div
             style={{
-              padding: "0.75rem 1rem",
-              borderBottom: "1px solid #334155",
+              padding: "0.85rem 1rem",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              background: "#0f172a",
+              background: "#0b1220",
             }}
           >
-            <h3 style={{ fontSize: "0.9rem", fontWeight: "700", color: "#f8fafc" }}>
-              Notifications {unreadCount > 0 && `(${unreadCount})`}
-            </h3>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "#f8fafc" }}>
+                Notifications
+              </span>
+              {unreadCount > 0 && (
+                <span style={{ fontSize: "0.7rem", background: "rgba(99, 102, 241, 0.2)", color: "#818cf8", padding: "0.1rem 0.4rem", borderRadius: "4px", fontWeight: "600" }}>
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
+
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
                 style={{
                   background: "none",
                   border: "none",
-                  color: "#60a5fa",
+                  color: "#6366f1",
                   fontSize: "0.75rem",
                   cursor: "pointer",
                   fontWeight: "600",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.25rem",
                 }}
               >
-                Mark all read
+                <CheckIcon size={12} /> Mark all read
               </button>
             )}
           </div>
 
-          {/* Notifications List */}
-          <div style={{ overflowY: "auto", flex: 1, padding: "0.5rem 0" }}>
+          <div style={{ overflowY: "auto", flex: 1 }}>
             {notifications.length === 0 ? (
-              <div style={{ padding: "1.5rem", textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>
-                No notifications yet.
+              <div style={{ padding: "2rem", textAlign: "center", color: "#64748b", fontSize: "0.85rem" }}>
+                No notifications recorded.
               </div>
             ) : (
               notifications.map((n) => (
@@ -176,16 +184,19 @@ export default function NotificationBell({ role }: NotificationBellProps) {
                   key={n.id}
                   onClick={() => !n.is_read && handleMarkSingleRead(n.id)}
                   style={{
-                    padding: "0.75rem 1rem",
-                    borderBottom: "1px solid #334155",
-                    background: n.is_read ? "#1e293b" : "rgba(59, 130, 246, 0.08)",
-                    borderLeft: n.is_read ? "none" : "3px solid #3b82f6",
+                    padding: "0.85rem 1rem",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                    background: n.is_read ? "transparent" : "rgba(99, 102, 241, 0.06)",
+                    borderLeft: n.is_read ? "none" : "3px solid #6366f1",
                     cursor: "pointer",
                     fontSize: "0.8rem",
+                    transition: "background 0.15s ease",
                   }}
                 >
-                  <p style={{ color: "#f8fafc", lineHeight: "1.3", marginBottom: "0.3rem" }}>{n.message}</p>
-                  <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>
+                  <p style={{ color: n.is_read ? "#cbd5e1" : "#f8fafc", lineHeight: "1.4", marginBottom: "0.35rem", fontWeight: n.is_read ? "400" : "500" }}>
+                    {n.message}
+                  </p>
+                  <span style={{ fontSize: "0.7rem", color: "#64748b" }}>
                     {new Date(n.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} •{" "}
                     {new Date(n.created_at).toLocaleDateString()}
                   </span>

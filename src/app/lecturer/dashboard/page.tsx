@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Course, LecturerCourseAssignment, Score, Student } from "@/types/db";
 import NotificationBell from "@/components/NotificationBell";
+import { UniversityShieldIcon, CheckIcon, AlertIcon, LockIcon } from "@/components/Icons";
 
 interface CourseStudentRow {
   registrationId: string;
@@ -29,11 +30,10 @@ export default function LecturerDashboardPage() {
   const [allScored, setAllScored] = useState(false);
   const [rejectionNotes, setRejectionNotes] = useState<Array<{ rejectedAt: string; rejectedBy: string; note: string }>>([]);
 
-  // Local scores input state keyed by registrationId
+  // Local scores input state
   const [scoreInputs, setScoreInputs] = useState<Record<string, { ca: string; exam: string; isSaving?: boolean; saved?: boolean }>>({});
   const [savingMsg, setSavingMsg] = useState("");
 
-  // Refs for fast row-by-row auto-focus
   const caInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -82,7 +82,6 @@ export default function LecturerDashboardPage() {
       setAllScored(data.allScored || false);
       setRejectionNotes(data.rejectionNotes || []);
 
-      // Populate local score inputs state
       const inputs: Record<string, { ca: string; exam: string; saved?: boolean }> = {};
       (data.students || []).forEach((row: CourseStudentRow) => {
         inputs[row.registrationId] = {
@@ -142,7 +141,6 @@ export default function LecturerDashboardPage() {
 
       if (data.allScored) setAllScored(true);
 
-      // Fast Workflow: Auto-advance focus to the next unscored student in the list!
       const nextStudent = courseStudents[currentIndex + 1];
       if (nextStudent && caInputRefs.current[nextStudent.registrationId]) {
         caInputRefs.current[nextStudent.registrationId]?.focus();
@@ -163,19 +161,19 @@ export default function LecturerDashboardPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0f172a", color: "#f8fafc", padding: "3rem", textAlign: "center" }}>
-        Loading Lecturer Dashboard...
+      <div style={{ minHeight: "100vh", background: "#090d16", color: "#f8fafc", padding: "3rem", textAlign: "center" }}>
+        Loading Lecturer Portal...
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f172a", color: "#f8fafc" }}>
-      {/* Top Header */}
+    <div style={{ minHeight: "100vh", background: "#090d16", color: "#f8fafc" }}>
+      {/* Executive Header */}
       <header
         style={{
-          background: "#1e293b",
-          borderBottom: "1px solid #334155",
+          background: "#131b2e",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           padding: "1rem 2rem",
           display: "flex",
           alignItems: "center",
@@ -183,28 +181,44 @@ export default function LecturerDashboardPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <span style={{ fontSize: "1.5rem" }}>👨‍🏫</span>
+          <div
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "10px",
+              background: "rgba(5, 150, 105, 0.15)",
+              color: "#34d399",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <UniversityShieldIcon size={22} />
+          </div>
           <div>
-            <h1 style={{ fontSize: "1.25rem", fontWeight: "700" }}>Lecturer Portal</h1>
-            <p style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-              Active Session: <strong>{activeSession}</strong>
+            <h1 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-outfit)", color: "#ffffff" }}>
+              Lecturer Scoring Portal
+            </h1>
+            <p style={{ fontSize: "0.75rem", color: "#64748b" }}>
+              Academic Session: <strong style={{ color: "#cbd5e1" }}>{activeSession}</strong>
             </p>
           </div>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <NotificationBell role="lecturer" />
-          <span style={{ fontSize: "0.875rem", color: "#cbd5e1" }}>{lecturer?.fullName || lecturer?.email}</span>
+          <span style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>{lecturer?.fullName || lecturer?.email}</span>
           <button
             onClick={handleLogout}
             style={{
-              padding: "0.4rem 0.85rem",
-              background: "#334155",
+              padding: "0.45rem 0.9rem",
+              background: "rgba(255, 255, 255, 0.05)",
               color: "#f8fafc",
-              border: "1px solid #475569",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
               borderRadius: "6px",
               cursor: "pointer",
               fontSize: "0.85rem",
+              fontWeight: "500",
             }}
           >
             Sign Out
@@ -212,19 +226,19 @@ export default function LecturerDashboardPage() {
         </div>
       </header>
 
-      {/* Dashboard Body */}
-      <div style={{ padding: "1.5rem 2rem", display: "grid", gridTemplateColumns: "320px 1fr", gap: "1.5rem" }}>
+      {/* Main Grid */}
+      <div style={{ padding: "1.75rem 2rem", display: "grid", gridTemplateColumns: "320px 1fr", gap: "1.5rem" }}>
         {/* Left Column: Assigned Courses List */}
-        <div style={{ background: "#1e293b", padding: "1.25rem", borderRadius: "12px", border: "1px solid #334155", height: "fit-content" }}>
-          <h2 style={{ fontSize: "1.1rem", fontWeight: "700", marginBottom: "0.75rem", color: "#f8fafc" }}>
-            📚 Assigned Courses ({activeSession})
-          </h2>
-          <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "1rem" }}>
-            Select a course to enter or edit student scores.
+        <div style={{ background: "#131b2e", padding: "1.25rem", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.08)", height: "fit-content" }}>
+          <h3 style={{ fontSize: "1.1rem", fontWeight: "700", marginBottom: "0.5rem", color: "#ffffff", fontFamily: "var(--font-outfit)" }}>
+            Assigned Courses ({activeSession})
+          </h3>
+          <p style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "1rem" }}>
+            Select a course to manage score entry roster.
           </p>
 
           {assignments.length === 0 ? (
-            <p style={{ fontSize: "0.85rem", color: "#64748b" }}>No courses assigned to you for session {activeSession}.</p>
+            <p style={{ fontSize: "0.85rem", color: "#64748b" }}>No courses assigned for session {activeSession}.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {assignments.map((a) => {
@@ -234,18 +248,18 @@ export default function LecturerDashboardPage() {
                     key={a.id}
                     onClick={() => a.course && selectCourse(a.course)}
                     style={{
-                      padding: "0.85rem",
-                      borderRadius: "8px",
-                      background: isSelected ? "#3b82f6" : "#0f172a",
-                      border: "1px solid #334155",
+                      padding: "0.85rem 1rem",
+                      borderRadius: "10px",
+                      background: isSelected ? "#059669" : "#0b1220",
+                      border: isSelected ? "1px solid #10b981" : "1px solid rgba(255, 255, 255, 0.06)",
                       cursor: "pointer",
-                      transition: "all 0.2s ease",
+                      transition: "all 0.15s ease",
                     }}
                   >
-                    <div style={{ fontWeight: "700", color: isSelected ? "#ffffff" : "#60a5fa" }}>{a.course?.code}</div>
-                    <div style={{ fontSize: "0.85rem", color: isSelected ? "#e2e8f0" : "#cbd5e1", marginTop: "0.2rem" }}>{a.course?.title}</div>
-                    <div style={{ fontSize: "0.75rem", color: isSelected ? "#cbd5e1" : "#94a3b8", marginTop: "0.4rem" }}>
-                      {a.course?.department?.name} | {a.course?.semester} Semester
+                    <div style={{ fontWeight: "700", color: isSelected ? "#ffffff" : "#60a5fa", fontSize: "0.95rem" }}>{a.course?.code}</div>
+                    <div style={{ fontSize: "0.85rem", color: isSelected ? "#e2e8f0" : "#cbd5e1", marginTop: "0.15rem" }}>{a.course?.title}</div>
+                    <div style={{ fontSize: "0.75rem", color: isSelected ? "#a7f3d0" : "#64748b", marginTop: "0.35rem" }}>
+                      {a.course?.department?.name} • {a.course?.semester} Semester
                     </div>
                   </div>
                 );
@@ -254,34 +268,34 @@ export default function LecturerDashboardPage() {
           )}
         </div>
 
-        {/* Right Column: Score Entry Table & Management Approval Readiness */}
+        {/* Right Column: Score Entry Table */}
         {selectedCourse ? (
-          <div style={{ background: "#1e293b", padding: "1.5rem", borderRadius: "12px", border: "1px solid #334155" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div style={{ background: "#131b2e", padding: "1.5rem", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.5rem" }}>
               <div>
-                <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#60a5fa" }}>
+                <h2 style={{ fontSize: "1.3rem", fontWeight: "700", color: "#60a5fa", fontFamily: "var(--font-outfit)" }}>
                   {selectedCourse.code} - {selectedCourse.title}
                 </h2>
-                <p style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
-                  Units: <strong>{selectedCourse.unit}</strong> | Semester: <strong>{selectedCourse.semester}</strong> | Policy Max: <strong>CA ({caMax}) / Exam ({examMax})</strong>
+                <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginTop: "0.2rem" }}>
+                  Units: <strong style={{ color: "#f8fafc" }}>{selectedCourse.unit}</strong> | Semester: <strong style={{ color: "#f8fafc" }}>{selectedCourse.semester}</strong> | Weighting Policy: <strong style={{ color: "#34d399" }}>CA ({caMax}) / Exam ({examMax})</strong>
                 </p>
               </div>
 
               {/* Status Readiness Badge */}
               {isCourseApproved ? (
-                <div style={{ padding: "0.5rem 1rem", background: "#065f46", color: "#34d399", borderRadius: "8px", fontWeight: "700", fontSize: "0.85rem" }}>
-                  ✓ Approved by Management (Scores Locked)
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.9rem", background: "rgba(6, 95, 70, 0.3)", color: "#34d399", border: "1px solid rgba(52, 211, 153, 0.3)", borderRadius: "20px", fontWeight: "700", fontSize: "0.8rem" }}>
+                  <CheckIcon size={14} /> Approved by Management (Locked)
                 </div>
               ) : isCourseRejected ? (
-                <div style={{ padding: "0.5rem 1rem", background: "#881337", color: "#fecdd3", borderRadius: "8px", fontWeight: "700", fontSize: "0.85rem" }}>
-                  ⚠️ Rejected by Management — Action Required
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.9rem", background: "rgba(136, 19, 55, 0.3)", color: "#fecdd3", border: "1px solid rgba(244, 63, 94, 0.3)", borderRadius: "20px", fontWeight: "700", fontSize: "0.8rem" }}>
+                  <AlertIcon size={14} /> Rejected by Management — Action Required
                 </div>
               ) : allScored ? (
-                <div style={{ padding: "0.5rem 1rem", background: "#854d0e", color: "#fef08a", borderRadius: "8px", fontWeight: "700", fontSize: "0.85rem" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.9rem", background: "rgba(133, 77, 14, 0.3)", color: "#fef08a", border: "1px solid rgba(250, 204, 21, 0.3)", borderRadius: "20px", fontWeight: "700", fontSize: "0.8rem" }}>
                   ⏳ Ready for Management Approval
                 </div>
               ) : (
-                <div style={{ padding: "0.5rem 1rem", background: "#334155", color: "#cbd5e1", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.9rem", background: "rgba(255, 255, 255, 0.05)", color: "#cbd5e1", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: "20px", fontWeight: "600", fontSize: "0.8rem" }}>
                   ✍️ Scoring in Progress
                 </div>
               )}
@@ -292,53 +306,53 @@ export default function LecturerDashboardPage() {
               <div
                 style={{
                   marginBottom: "1.25rem",
-                  padding: "1rem",
-                  background: "#450a0a",
-                  border: "1px solid #991b1b",
-                  borderRadius: "8px",
+                  padding: "1rem 1.25rem",
+                  background: "rgba(136, 19, 55, 0.25)",
+                  border: "1px solid rgba(244, 63, 94, 0.3)",
+                  borderRadius: "10px",
                   color: "#fca5a5",
                 }}
               >
-                <h3 style={{ fontWeight: "700", fontSize: "0.95rem", marginBottom: "0.4rem" }}>
+                <h4 style={{ fontWeight: "700", fontSize: "0.9rem", marginBottom: "0.4rem" }}>
                   ⚠️ Management Rejected Submitted Scores:
-                </h3>
+                </h4>
                 {rejectionNotes.map((h, i) => (
-                  <div key={i} style={{ fontSize: "0.85rem", marginTop: "0.25rem" }}>
+                  <div key={i} style={{ fontSize: "0.85rem", marginTop: "0.2rem" }}>
                     • <em>{new Date(h.rejectedAt).toLocaleDateString()}</em>: &quot;{h.note}&quot;
                   </div>
                 ))}
                 <p style={{ fontSize: "0.8rem", color: "#fef08a", marginTop: "0.5rem" }}>
-                  Scores are unlocked. Please review the feedback, update scores below, and save to resubmit for approval.
+                  Scores are unlocked. Please update scores below and save to resubmit for approval.
                 </p>
               </div>
             )}
 
             {savingMsg && (
-              <div style={{ padding: "0.6rem 1rem", background: "#064e3b", color: "#a7f3d0", borderRadius: "6px", marginBottom: "1rem", fontSize: "0.85rem" }}>
+              <div style={{ padding: "0.6rem 1rem", background: "rgba(6, 95, 70, 0.3)", color: "#a7f3d0", borderRadius: "6px", marginBottom: "1rem", fontSize: "0.85rem" }}>
                 {savingMsg}
               </div>
             )}
 
             {/* Registered Students Score Table */}
             {courseStudents.length === 0 ? (
-              <p style={{ color: "#64748b", fontSize: "0.85rem" }}>No students have registered for this course yet.</p>
+              <p style={{ color: "#64748b", fontSize: "0.85rem" }}>No students registered for this course yet.</p>
             ) : (
               <div>
-                <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "0.75rem" }}>
-                  ⚡ <strong>Fast Workflow:</strong> Enter CA & Exam scores, then press <strong>Enter</strong> or click <strong>Save & Next ✓</strong> to automatically jump to the next student.
+                <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "0.85rem" }}>
+                  ⚡ <strong>Fast Scoring Workflow:</strong> Enter CA & Exam scores, then press <strong>Enter</strong> or click <strong>Save & Next →</strong> to automatically jump to the next student.
                 </p>
 
-                <div style={{ overflowX: "auto", border: "1px solid #334155", borderRadius: "8px" }}>
+                <div style={{ overflowX: "auto", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "10px" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
-                    <thead style={{ background: "#0f172a", color: "#94a3b8" }}>
+                    <thead style={{ background: "#0b1220", color: "#94a3b8" }}>
                       <tr>
-                        <th style={{ padding: "0.6rem 1rem" }}>#</th>
-                        <th style={{ padding: "0.6rem 1rem" }}>Matric Number</th>
-                        <th style={{ padding: "0.6rem 1rem" }}>Student Name</th>
-                        <th style={{ padding: "0.6rem 1rem" }}>CA Score (/{caMax})</th>
-                        <th style={{ padding: "0.6rem 1rem" }}>Exam Score (/{examMax})</th>
-                        <th style={{ padding: "0.6rem 1rem" }}>Total Score</th>
-                        <th style={{ padding: "0.6rem 1rem" }}>Action</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>#</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>Matric Number</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>Student Name</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>CA Score (/{caMax})</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>Exam Score (/{examMax})</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>Total Score</th>
+                        <th style={{ padding: "0.75rem 1rem" }}>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -347,11 +361,11 @@ export default function LecturerDashboardPage() {
                         const total = (parseFloat(input.ca) || 0) + (parseFloat(input.exam) || 0);
 
                         return (
-                          <tr key={row.registrationId} style={{ borderBottom: "1px solid #334155" }}>
-                            <td style={{ padding: "0.6rem 1rem", color: "#64748b" }}>{idx + 1}</td>
-                            <td style={{ padding: "0.6rem 1rem", fontWeight: "700", color: "#60a5fa" }}>{row.student.matric_number}</td>
-                            <td style={{ padding: "0.6rem 1rem" }}>{row.student.full_name}</td>
-                            <td style={{ padding: "0.6rem 1rem" }}>
+                          <tr key={row.registrationId} style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
+                            <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>{idx + 1}</td>
+                            <td style={{ padding: "0.75rem 1rem", fontWeight: "700", color: "#60a5fa" }}>{row.student.matric_number}</td>
+                            <td style={{ padding: "0.75rem 1rem", color: "#f8fafc" }}>{row.student.full_name}</td>
+                            <td style={{ padding: "0.75rem 1rem" }}>
                               <input
                                 type="number"
                                 min={0}
@@ -367,17 +381,17 @@ export default function LecturerDashboardPage() {
                                 }
                                 placeholder={`0-${caMax}`}
                                 style={{
-                                  width: "70px",
-                                  padding: "0.4rem",
-                                  background: "#0f172a",
-                                  border: "1px solid #334155",
-                                  borderRadius: "4px",
+                                  width: "75px",
+                                  padding: "0.45rem",
+                                  background: "#0b1220",
+                                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                                  borderRadius: "6px",
                                   color: "#fff",
                                   fontSize: "0.85rem",
                                 }}
                               />
                             </td>
-                            <td style={{ padding: "0.6rem 1rem" }}>
+                            <td style={{ padding: "0.75rem 1rem" }}>
                               <input
                                 type="number"
                                 min={0}
@@ -395,29 +409,29 @@ export default function LecturerDashboardPage() {
                                 }}
                                 placeholder={`0-${examMax}`}
                                 style={{
-                                  width: "70px",
-                                  padding: "0.4rem",
-                                  background: "#0f172a",
-                                  border: "1px solid #334155",
-                                  borderRadius: "4px",
+                                  width: "75px",
+                                  padding: "0.45rem",
+                                  background: "#0b1220",
+                                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                                  borderRadius: "6px",
                                   color: "#fff",
                                   fontSize: "0.85rem",
                                 }}
                               />
                             </td>
-                            <td style={{ padding: "0.6rem 1rem", fontWeight: "700", color: "#f8fafc" }}>
+                            <td style={{ padding: "0.75rem 1rem", fontWeight: "700", color: "#ffffff" }}>
                               {total}
                             </td>
-                            <td style={{ padding: "0.6rem 1rem" }}>
+                            <td style={{ padding: "0.75rem 1rem" }}>
                               <button
                                 onClick={() => handleSaveRowScore(row.registrationId, idx)}
                                 disabled={isCourseApproved || input.isSaving}
                                 style={{
-                                  padding: "0.4rem 0.75rem",
-                                  background: input.saved ? "#065f46" : "#3b82f6",
-                                  color: "#fff",
+                                  padding: "0.45rem 0.85rem",
+                                  background: input.saved ? "#065f46" : "#2563eb",
+                                  color: "#ffffff",
                                   border: "none",
-                                  borderRadius: "4px",
+                                  borderRadius: "6px",
                                   fontWeight: "600",
                                   cursor: isCourseApproved ? "not-allowed" : "pointer",
                                   fontSize: "0.8rem",
@@ -436,8 +450,8 @@ export default function LecturerDashboardPage() {
             )}
           </div>
         ) : (
-          <div style={{ background: "#1e293b", padding: "3rem", borderRadius: "12px", border: "1px solid #334155", textAlign: "center", color: "#64748b" }}>
-            Select an assigned course from the left menu to manage score entries.
+          <div style={{ background: "#131b2e", padding: "4rem 2rem", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.08)", textAlign: "center", color: "#64748b" }}>
+            Select an assigned course from the left menu to manage student scores.
           </div>
         )}
       </div>

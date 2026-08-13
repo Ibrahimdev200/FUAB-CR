@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { UniversityShieldIcon, StudentIcon, LecturerIcon, ManagementIcon } from "@/components/Icons";
 
 interface SupabaseStatusResponse {
   status: string;
@@ -39,62 +40,73 @@ export default function HomePage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: "radial-gradient(ellipse at 50% 0%, #1e1b4b 0%, #090d16 75%)",
         color: "#f8fafc",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "2rem 1rem",
+        padding: "3rem 1.5rem",
       }}
     >
-      <div style={{ maxWidth: "800px", width: "100%", textAlign: "center" }}>
-        {/* Header Branding */}
-        <div style={{ marginBottom: "2.5rem" }}>
+      <div style={{ maxWidth: "860px", width: "100%", textAlign: "center" }}>
+        {/* Institutional Branding Hero */}
+        <div style={{ marginBottom: "3rem" }}>
           <div
             style={{
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "72px",
-              height: "72px",
-              borderRadius: "20px",
-              background: "rgba(59, 130, 246, 0.15)",
-              color: "#3b82f6",
-              fontSize: "2.5rem",
-              marginBottom: "1rem",
-              boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.2)",
+              width: "76px",
+              height: "76px",
+              borderRadius: "22px",
+              background: "rgba(99, 102, 241, 0.12)",
+              border: "1px solid rgba(99, 102, 241, 0.25)",
+              color: "#818cf8",
+              marginBottom: "1.25rem",
+              boxShadow: "0 12px 30px -10px rgba(99, 102, 241, 0.3)",
             }}
           >
-            🏫
+            <UniversityShieldIcon size={38} />
           </div>
-          <h1 style={{ fontSize: "2.5rem", fontWeight: "800", color: "#f8fafc", letterSpacing: "-0.025em" }}>
-            FUAB Academic Portal
+
+          <h1
+            style={{
+              fontFamily: "var(--font-outfit)",
+              fontSize: "2.75rem",
+              fontWeight: "800",
+              letterSpacing: "-0.03em",
+              color: "#ffffff",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Federal University Academic Portal
           </h1>
-          <p style={{ color: "#94a3b8", fontSize: "1.1rem", marginTop: "0.5rem" }}>
-            Course Registration, Lecturer Scoring & Results Governance System
+          <p style={{ color: "#94a3b8", fontSize: "1.1rem", maxWidth: "600px", margin: "0 auto", lineHeight: "1.6" }}>
+            Official University Platform for Student Registration, Lecturer Scoring, & Results Management
           </p>
 
-          {/* Database Connection Badge */}
-          <div style={{ marginTop: "1rem" }}>
+          {/* Database Connection Status Pill */}
+          <div style={{ marginTop: "1.25rem" }}>
             {loading ? (
-              <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Checking system status...</span>
+              <span style={{ fontSize: "0.85rem", color: "#64748b" }}>Verifying system connection...</span>
             ) : status?.status === "connected" || status?.isConfigured ? (
               <span
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.4rem",
-                  padding: "0.35rem 0.85rem",
+                  padding: "0.35rem 0.9rem",
                   borderRadius: "20px",
-                  background: "#064e3b",
-                  border: "1px solid #047857",
-                  color: "#a7f3d0",
+                  background: "rgba(6, 95, 70, 0.3)",
+                  border: "1px solid rgba(52, 211, 153, 0.3)",
+                  color: "#34d399",
                   fontSize: "0.8rem",
                   fontWeight: "600",
                 }}
               >
-                ● Live Supabase Database Connected
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#34d399" }} />
+                Supabase PostgreSQL Live Connected
               </span>
             ) : (
               <span
@@ -102,65 +114,82 @@ export default function HomePage() {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.4rem",
-                  padding: "0.35rem 0.85rem",
+                  padding: "0.35rem 0.9rem",
                   borderRadius: "20px",
-                  background: "#854d0e",
-                  border: "1px solid #a16207",
+                  background: "rgba(133, 77, 14, 0.3)",
+                  border: "1px solid rgba(254, 240, 138, 0.3)",
                   color: "#fef08a",
                   fontSize: "0.8rem",
                   fontWeight: "600",
                 }}
               >
-                ⚠️ Check Supabase Environment Credentials
+                ⚠️ Check Supabase Credentials
               </span>
             )}
           </div>
         </div>
 
-        {/* Portal Access Cards Grid */}
+        {/* Portal Selection Cards */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "1.25rem",
-            marginBottom: "3rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "1.5rem",
+            marginBottom: "3.5rem",
           }}
         >
           {/* Card 1: Student Portal */}
           <div
             style={{
-              background: "#1e293b",
-              border: "1px solid #334155",
-              borderRadius: "14px",
-              padding: "1.75rem 1.25rem",
+              background: "#131b2e",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "16px",
+              padding: "2rem 1.5rem",
               textAlign: "left",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+              boxShadow: "0 15px 30px -10px rgba(0, 0, 0, 0.5)",
               transition: "transform 0.2s ease, border-color 0.2s ease",
             }}
           >
             <div>
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🎓</div>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#f8fafc" }}>Student Portal</h2>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginTop: "0.4rem", lineHeight: "1.5" }}>
-                Course registration, registration status tracking, and official GPA/CGPA results checker.
+              <div
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "12px",
+                  background: "rgba(37, 99, 235, 0.15)",
+                  color: "#60a5fa",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "1rem",
+                }}
+              >
+                <StudentIcon size={24} />
+              </div>
+              <h2 style={{ fontSize: "1.3rem", fontWeight: "700", color: "#ffffff", marginBottom: "0.4rem" }}>
+                Student Portal
+              </h2>
+              <p style={{ fontSize: "0.875rem", color: "#94a3b8", lineHeight: "1.5" }}>
+                Matriculation verification, course registration, and official GPA/CGPA results checker.
               </p>
             </div>
             <Link
               href="/student/login"
               style={{
-                marginTop: "1.5rem",
+                marginTop: "1.75rem",
                 display: "block",
                 textAlign: "center",
-                padding: "0.75rem",
+                padding: "0.75rem 1rem",
                 borderRadius: "8px",
-                background: "#3b82f6",
+                background: "#2563eb",
                 color: "#ffffff",
                 fontWeight: "600",
-                fontSize: "0.95rem",
+                fontSize: "0.9rem",
                 textDecoration: "none",
+                transition: "background 0.2s ease",
               }}
             >
               Sign In as Student →
@@ -170,36 +199,52 @@ export default function HomePage() {
           {/* Card 2: Lecturer Portal */}
           <div
             style={{
-              background: "#1e293b",
-              border: "1px solid #334155",
-              borderRadius: "14px",
-              padding: "1.75rem 1.25rem",
+              background: "#131b2e",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "16px",
+              padding: "2rem 1.5rem",
               textAlign: "left",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+              boxShadow: "0 15px 30px -10px rgba(0, 0, 0, 0.5)",
             }}
           >
             <div>
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>👨‍🏫</div>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#f8fafc" }}>Lecturer Portal</h2>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginTop: "0.4rem", lineHeight: "1.5" }}>
-                Assigned courses view, fast score entry with auto-advance, and management rejection review.
+              <div
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "12px",
+                  background: "rgba(5, 150, 105, 0.15)",
+                  color: "#34d399",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "1rem",
+                }}
+              >
+                <LecturerIcon size={24} />
+              </div>
+              <h2 style={{ fontSize: "1.3rem", fontWeight: "700", color: "#ffffff", marginBottom: "0.4rem" }}>
+                Lecturer Portal
+              </h2>
+              <p style={{ fontSize: "0.875rem", color: "#94a3b8", lineHeight: "1.5" }}>
+                Assigned courses roster, fast score entry with keyboard auto-advance, and rejection notes review.
               </p>
             </div>
             <Link
               href="/lecturer/login"
               style={{
-                marginTop: "1.5rem",
+                marginTop: "1.75rem",
                 display: "block",
                 textAlign: "center",
-                padding: "0.75rem",
+                padding: "0.75rem 1rem",
                 borderRadius: "8px",
                 background: "#059669",
                 color: "#ffffff",
                 fontWeight: "600",
-                fontSize: "0.95rem",
+                fontSize: "0.9rem",
                 textDecoration: "none",
               }}
             >
@@ -210,36 +255,52 @@ export default function HomePage() {
           {/* Card 3: Management Portal */}
           <div
             style={{
-              background: "#1e293b",
-              border: "1px solid #334155",
-              borderRadius: "14px",
-              padding: "1.75rem 1.25rem",
+              background: "#131b2e",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "16px",
+              padding: "2rem 1.5rem",
               textAlign: "left",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+              boxShadow: "0 15px 30px -10px rgba(0, 0, 0, 0.5)",
             }}
           >
             <div>
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🏫</div>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#f8fafc" }}>Management Portal</h2>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8", marginTop: "0.4rem", lineHeight: "1.5" }}>
-                Student CSV upload, academic structure CRUD, score approvals, access lock, and audit logs.
+              <div
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "12px",
+                  background: "rgba(99, 102, 241, 0.15)",
+                  color: "#818cf8",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "1rem",
+                }}
+              >
+                <ManagementIcon size={24} />
+              </div>
+              <h2 style={{ fontSize: "1.3rem", fontWeight: "700", color: "#ffffff", marginBottom: "0.4rem" }}>
+                Management Portal
+              </h2>
+              <p style={{ fontSize: "0.875rem", color: "#94a3b8", lineHeight: "1.5" }}>
+                Student CSV upload, academic structure CRUD, score approvals queue, result access lock, and audit logs.
               </p>
             </div>
             <Link
               href="/mgmt-portal-x9k2/login"
               style={{
-                marginTop: "1.5rem",
+                marginTop: "1.75rem",
                 display: "block",
                 textAlign: "center",
-                padding: "0.75rem",
+                padding: "0.75rem 1rem",
                 borderRadius: "8px",
-                background: "#475569",
+                background: "#4f46e5",
                 color: "#ffffff",
                 fontWeight: "600",
-                fontSize: "0.95rem",
+                fontSize: "0.9rem",
                 textDecoration: "none",
               }}
             >
@@ -249,9 +310,11 @@ export default function HomePage() {
         </div>
 
         {/* Footer info */}
-        <p style={{ fontSize: "0.8rem", color: "#64748b" }}>
-          Federal University Academic Portal System © {new Date().getFullYear()} • Powered by Next.js & Supabase
-        </p>
+        <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: "1.5rem" }}>
+          <p style={{ fontSize: "0.8rem", color: "#64748b" }}>
+            Federal University Academic Portal • Enterprise Management System © {new Date().getFullYear()}
+          </p>
+        </div>
       </div>
     </div>
   );

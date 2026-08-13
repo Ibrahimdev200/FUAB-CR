@@ -14,6 +14,7 @@ import {
   AuditLog,
 } from "@/types/db";
 import NotificationBell from "@/components/NotificationBell";
+import { UniversityShieldIcon } from "@/components/Icons";
 
 type TabType =
   | "upload"
@@ -74,19 +75,19 @@ export default function ManagementDashboardPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0f172a", color: "#f8fafc", padding: "3rem", textAlign: "center" }}>
-        Loading Management Portal...
+      <div style={{ minHeight: "100vh", background: "#090d16", color: "#f8fafc", padding: "3rem", textAlign: "center" }}>
+        Loading Management Control Portal...
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f172a", color: "#f8fafc" }}>
-      {/* Top Navigation Bar */}
+    <div style={{ minHeight: "100vh", background: "#090d16", color: "#f8fafc" }}>
+      {/* Executive Header */}
       <header
         style={{
-          background: "#1e293b",
-          borderBottom: "1px solid #334155",
+          background: "#131b2e",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           padding: "1rem 2rem",
           display: "flex",
           alignItems: "center",
@@ -94,28 +95,44 @@ export default function ManagementDashboardPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <span style={{ fontSize: "1.5rem" }}>🛡️</span>
+          <div
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "10px",
+              background: "rgba(99, 102, 241, 0.15)",
+              color: "#818cf8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <UniversityShieldIcon size={22} />
+          </div>
           <div>
-            <h1 style={{ fontSize: "1.25rem", fontWeight: "700" }}>Management Portal</h1>
-            <p style={{ fontSize: "0.8rem", color: "#94a3b8" }}>
-              Active Session: <strong>{academicSettings.active_session}</strong> | Semester: <strong>{academicSettings.active_semester}</strong>
+            <h1 style={{ fontSize: "1.15rem", fontWeight: "700", fontFamily: "var(--font-outfit)", color: "#ffffff" }}>
+              Management Control Portal
+            </h1>
+            <p style={{ fontSize: "0.75rem", color: "#64748b" }}>
+              Active Session: <strong style={{ color: "#cbd5e1" }}>{academicSettings.active_session}</strong> | Semester: <strong style={{ color: "#cbd5e1" }}>{academicSettings.active_semester}</strong>
             </p>
           </div>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <NotificationBell role="management" />
-          <span style={{ fontSize: "0.875rem", color: "#cbd5e1" }}>{adminUser?.email}</span>
+          <span style={{ fontSize: "0.85rem", color: "#cbd5e1" }}>{adminUser?.email}</span>
           <button
             onClick={handleLogout}
             style={{
-              padding: "0.4rem 0.85rem",
-              background: "#334155",
+              padding: "0.45rem 0.9rem",
+              background: "rgba(255, 255, 255, 0.05)",
               color: "#f8fafc",
-              border: "1px solid #475569",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
               borderRadius: "6px",
               cursor: "pointer",
               fontSize: "0.85rem",
+              fontWeight: "500",
             }}
           >
             Sign Out
@@ -124,43 +141,43 @@ export default function ManagementDashboardPage() {
       </header>
 
       {/* Main Container */}
-      <div style={{ padding: "1.5rem 2rem" }}>
-        {/* Tab Selection */}
+      <div style={{ padding: "1.75rem 2rem" }}>
+        {/* Tab Selection Bar */}
         <div
           style={{
             display: "flex",
             gap: "0.5rem",
-            borderBottom: "1px solid #334155",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
             paddingBottom: "0.75rem",
             marginBottom: "1.5rem",
             overflowX: "auto",
           }}
         >
           {[
-            { id: "upload", label: "📁 Upload Student Data" },
-            { id: "faculties_courses", label: "🏛️ Faculties, Depts & Courses" },
-            { id: "lecturers", label: "👨‍🏫 Manage Lecturers" },
-            { id: "grading", label: "⚖️ Grading Policy" },
-            { id: "approvals", label: "✅ Approvals & Rejections" },
-            { id: "access", label: "🔒 Student Access Control" },
-            { id: "registrations", label: "📋 Registrations Report" },
-            { id: "academic", label: "⚙️ Academic Settings" },
-            { id: "audit_logs", label: "📜 Audit Logs" },
+            { id: "upload", label: "Upload Student Data" },
+            { id: "faculties_courses", label: "Faculties, Depts & Courses" },
+            { id: "lecturers", label: "Manage Lecturers" },
+            { id: "grading", label: "Grading Policy" },
+            { id: "approvals", label: "Approvals & Rejections" },
+            { id: "access", label: "Student Access Control" },
+            { id: "registrations", label: "Registrations Report" },
+            { id: "academic", label: "Academic Settings" },
+            { id: "audit_logs", label: "System Audit Logs" },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
               style={{
-                padding: "0.6rem 1.1rem",
+                padding: "0.6rem 1rem",
                 borderRadius: "8px",
-                fontSize: "0.875rem",
+                fontSize: "0.85rem",
                 fontWeight: "600",
                 border: "none",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
-                background: activeTab === tab.id ? "#3b82f6" : "#1e293b",
+                background: activeTab === tab.id ? "#4f46e5" : "transparent",
                 color: activeTab === tab.id ? "#ffffff" : "#94a3b8",
-                transition: "all 0.2s ease",
+                transition: "all 0.15s ease",
               }}
             >
               {tab.label}

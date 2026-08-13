@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { StudentIcon, UniversityShieldIcon } from "@/components/Icons";
 
 export default function StudentLoginPage() {
   const router = useRouter();
@@ -116,22 +117,24 @@ export default function StudentLoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: "radial-gradient(ellipse at 50% 0%, #1e1b4b 0%, #090d16 80%)",
         color: "#f8fafc",
-        padding: "1rem",
+        padding: "1.5rem",
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: "420px",
-          background: "#1e293b",
-          border: "1px solid #334155",
+          maxWidth: "440px",
+          background: "#131b2e",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: "16px",
-          padding: "2.5rem 1.75rem",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          padding: "2.5rem 2rem",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
         }}
+        className="animate-fade-in"
       >
+        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <div
             style={{
@@ -140,32 +143,32 @@ export default function StudentLoginPage() {
               justifyContent: "center",
               width: "56px",
               height: "56px",
-              borderRadius: "14px",
-              background: "rgba(59, 130, 246, 0.15)",
-              color: "#3b82f6",
-              fontSize: "1.75rem",
+              borderRadius: "16px",
+              background: "rgba(37, 99, 235, 0.12)",
+              border: "1px solid rgba(37, 99, 235, 0.25)",
+              color: "#60a5fa",
               marginBottom: "1rem",
             }}
           >
-            🎓
+            <StudentIcon size={28} />
           </div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#f8fafc" }}>
+          <h1 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#ffffff" }}>
             Student Portal
           </h1>
-          <p style={{ color: "#94a3b8", fontSize: "0.9rem", marginTop: "0.25rem" }}>
-            Course Registration & Results Management
+          <p style={{ color: "#94a3b8", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            Course Registration & Official Results System
           </p>
         </div>
 
         {error && (
           <div
             style={{
-              background: "#450a0a",
-              border: "1px solid #991b1b",
+              background: "rgba(153, 27, 27, 0.2)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
               color: "#fca5a5",
               padding: "0.85rem 1rem",
               borderRadius: "8px",
-              fontSize: "0.875rem",
+              fontSize: "0.85rem",
               marginBottom: "1.5rem",
               lineHeight: "1.4",
             }}
@@ -178,8 +181,8 @@ export default function StudentLoginPage() {
         {step === "matric_check" && (
           <form onSubmit={handleCheckMatric} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
-                Enter Your Matriculation Number
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
+                Matriculation Number
               </label>
               <input
                 type="text"
@@ -191,11 +194,10 @@ export default function StudentLoginPage() {
                   width: "100%",
                   padding: "0.75rem 1rem",
                   borderRadius: "8px",
-                  background: "#0f172a",
-                  border: "1px solid #334155",
-                  color: "#f8fafc",
-                  fontSize: "1rem",
-                  outline: "none",
+                  background: "#0b1220",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "#ffffff",
+                  fontSize: "0.95rem",
                   textTransform: "uppercase",
                 }}
               />
@@ -208,16 +210,16 @@ export default function StudentLoginPage() {
                 width: "100%",
                 padding: "0.85rem",
                 borderRadius: "8px",
-                background: "#3b82f6",
+                background: "#2563eb",
                 color: "#ffffff",
                 fontWeight: "600",
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 border: "none",
                 cursor: loading ? "not-allowed" : "pointer",
                 opacity: loading ? 0.7 : 1,
               }}
             >
-              {loading ? "Verifying Record..." : "Continue"}
+              {loading ? "Verifying Matric Record..." : "Continue"}
             </button>
           </form>
         )}
@@ -225,17 +227,17 @@ export default function StudentLoginPage() {
         {/* STEP 2A: FIRST-TIME ACCOUNT CREATION */}
         {step === "register" && (
           <form onSubmit={handleRegisterSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div style={{ background: "#0f172a", padding: "1rem", borderRadius: "8px", borderLeft: "4px solid #3b82f6" }}>
-              <p style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Verification Successful:</p>
-              <h3 style={{ fontSize: "1.05rem", color: "#f8fafc", fontWeight: "700" }}>{studentDetails?.full_name}</h3>
-              <p style={{ fontSize: "0.8rem", color: "#cbd5e1" }}>
-                {matricNumber} | {studentDetails?.department?.name || "Department"} ({studentDetails?.level} Level)
+            <div style={{ background: "#0b1220", padding: "1rem", borderRadius: "10px", borderLeft: "4px solid #2563eb" }}>
+              <p style={{ fontSize: "0.75rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "700" }}>Verified Record</p>
+              <h3 style={{ fontSize: "1.05rem", color: "#ffffff", fontWeight: "700", marginTop: "0.2rem" }}>{studentDetails?.full_name}</h3>
+              <p style={{ fontSize: "0.8rem", color: "#94a3b8", marginTop: "0.25rem" }}>
+                {matricNumber} • {studentDetails?.department?.name} ({studentDetails?.level} Level)
               </p>
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
-                Create Your Account Password (min 8 chars)
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
+                Create Password (min 8 characters)
               </label>
               <input
                 type="password"
@@ -248,17 +250,16 @@ export default function StudentLoginPage() {
                   width: "100%",
                   padding: "0.75rem 1rem",
                   borderRadius: "8px",
-                  background: "#0f172a",
-                  border: "1px solid #334155",
-                  color: "#f8fafc",
+                  background: "#0b1220",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "#ffffff",
                   fontSize: "0.95rem",
-                  outline: "none",
                 }}
               />
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
                 Confirm Password
               </label>
               <input
@@ -272,11 +273,10 @@ export default function StudentLoginPage() {
                   width: "100%",
                   padding: "0.75rem 1rem",
                   borderRadius: "8px",
-                  background: "#0f172a",
-                  border: "1px solid #334155",
-                  color: "#f8fafc",
+                  background: "#0b1220",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "#ffffff",
                   fontSize: "0.95rem",
-                  outline: "none",
                 }}
               />
             </div>
@@ -291,7 +291,7 @@ export default function StudentLoginPage() {
                 background: "#059669",
                 color: "#ffffff",
                 fontWeight: "600",
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 border: "none",
                 cursor: loading ? "not-allowed" : "pointer",
               }}
@@ -302,9 +302,9 @@ export default function StudentLoginPage() {
             <button
               type="button"
               onClick={() => setStep("matric_check")}
-              style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem" }}
+              style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.85rem" }}
             >
-              ← Back to Matric Check
+              ← Back to Matric Verification
             </button>
           </form>
         )}
@@ -312,15 +312,15 @@ export default function StudentLoginPage() {
         {/* STEP 2B: EXISTING STUDENT LOGIN */}
         {step === "login" && (
           <form onSubmit={handleLoginSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div style={{ background: "#0f172a", padding: "0.85rem 1rem", borderRadius: "8px" }}>
-              <p style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Welcome back,</p>
-              <h3 style={{ fontSize: "1rem", color: "#f8fafc", fontWeight: "700" }}>{studentDetails?.full_name}</h3>
+            <div style={{ background: "#0b1220", padding: "0.85rem 1rem", borderRadius: "8px" }}>
+              <p style={{ fontSize: "0.75rem", color: "#64748b" }}>Welcome back,</p>
+              <h3 style={{ fontSize: "1rem", color: "#ffffff", fontWeight: "700" }}>{studentDetails?.full_name}</h3>
               <p style={{ fontSize: "0.8rem", color: "#60a5fa", fontWeight: "600" }}>{matricNumber}</p>
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
-                Enter Your Password
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "500", color: "#cbd5e1", marginBottom: "0.5rem" }}>
+                Password
               </label>
               <input
                 type="password"
@@ -332,11 +332,10 @@ export default function StudentLoginPage() {
                   width: "100%",
                   padding: "0.75rem 1rem",
                   borderRadius: "8px",
-                  background: "#0f172a",
-                  border: "1px solid #334155",
-                  color: "#f8fafc",
+                  background: "#0b1220",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "#ffffff",
                   fontSize: "0.95rem",
-                  outline: "none",
                 }}
               />
             </div>
@@ -348,10 +347,10 @@ export default function StudentLoginPage() {
                 width: "100%",
                 padding: "0.85rem",
                 borderRadius: "8px",
-                background: "#3b82f6",
+                background: "#2563eb",
                 color: "#ffffff",
                 fontWeight: "600",
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 border: "none",
                 cursor: loading ? "not-allowed" : "pointer",
               }}
@@ -362,7 +361,7 @@ export default function StudentLoginPage() {
             <button
               type="button"
               onClick={() => setStep("matric_check")}
-              style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "0.85rem" }}
+              style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.85rem" }}
             >
               ← Use a different Matric Number
             </button>
